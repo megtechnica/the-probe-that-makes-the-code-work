@@ -3,9 +3,6 @@ import os, convert_logger_data
 
 ## I like your haircut
 
-## captures starting timestamp
-start_time = datetime.now()
-
 ## declaring functions, not the entry point
 def get_seconds():
     time_stamp = datetime.now()
@@ -23,24 +20,37 @@ def ten_second_interval(ts_1):
     else:
         return False
 
-async def data_capture(device):
+async def data_capture(device, index_pos = -1):
     data = device.get_data('Data_Logger_Output', start_time)
-    rec_nm = data[-1]['RecNm']
+    rec_nm = data[index_pos]['RecNm']
 
 def main():
+    ## captures starting timestamp
+    start_time = datetime.now()
     ## capture device logic here
     directory = listdir('/dev')
     if 'ttyACM0' in directory:
         device = CR1000.from_url('serial:/dev/ttyACM0:115200')
     else:
         device = CR1000.from_url('serial:/dev/ttyACM1:115200')
+    ## once we connect to the device, capture a second time stamp & add that 
+    ## to the start_time.second then subtract that from 10.  Sleep for 10 - runtime
+    ## until this point.
+    after_capture = get_seconds_CR1000()
+    wait_for = 10 - (start_time.second + after_capture)
+    sleep(wait_for)
+
+    ## first data row capture happens here
     data = device.get_data('Data_Logger_Output', start_time)
     ## captures first record number to reference all other captures from
     init_rec_nm = data[0]['RecNbr']
-    # if init_rec_nm + count_rec_num < captured rec_nm, we are behind
+    # if rec_nm - count_rec_num != init_rec_nm, we are behind
     count_rec_nm = 0
     ## while device is connected
     while device.connected == True:
+        index_pos = init_rec_nm - count_rec_nm
+        ## if our captures are current and we have not fallen behind
+        if index_pos == init_rec_nm:
 
 
 ## Upon powering on the Raspberry Pi and the CR1000X
@@ -48,8 +58,6 @@ def main():
 ## occur immediately, therefore we need to wait 10 sec
 ## for the first capture.  
 
-wait_for = 10 - start_time.second
-sleep(wait_for)
 try:
     main()
 
