@@ -1,3 +1,5 @@
+from asyncio import *
+
 def convert_pressure(mV):
     return (((mV/5) + 0.095)/0.009)
 
@@ -7,7 +9,7 @@ def convert_relative_humidity(mV):
 def convert_farenheit(mV):
     return (((mV/0.01)*1.8)+32)
 
-def convert_data(data):
+async def convert_data(data):
     for i in data:
         if "P" in i:
             data[i] = convert_pressure(data)
