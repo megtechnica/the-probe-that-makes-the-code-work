@@ -10,8 +10,17 @@ def main():
     device = CR1000.from_url()
     data = device.get_data('Data_Logger_Output', start_time)
     init_rec_nm = data['RecNm']
+    count_rec_nm = 0
+    ## while device is connected
     while device.connected == True:
-        
+        ## If this is the first iteration, we don't need another capture
+        if count_rec_nm == 0:
+            data = data[-1]
+            conv_data = convert_data(data)  ## need to declare conv_logger_data as asynchronous 
+            sending_function(conv_data)
+            count_rec_nm += 1
+        else:
+            
         
 
 
