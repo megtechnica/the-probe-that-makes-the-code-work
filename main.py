@@ -1,9 +1,12 @@
 from pylink, pycampbellcr1000, asyncio, datetime import *
 import os, convert_logger_data
 
+## I like your haircut
+
 ## captures starting timestamp
 start_time = datetime.now()
 
+## declaring functions, not the entry point
 def get_seconds():
     time_stamp = datetime.now()
     return time_stamp.second
