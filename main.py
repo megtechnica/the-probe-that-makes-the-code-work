@@ -20,9 +20,9 @@ def ten_second_interval(ts_1):
     else:
         return False
 
-async def data_capture(device, index_pos = -1):
+async def data_capture(device, count_index_nm):
     data = device.get_data('Data_Logger_Output', start_time)
-    rec_nm = data[index_pos]['RecNm']
+    return capt_data = data[count_index_nm]
 
 def main():
     ## captures starting timestamp
@@ -44,13 +44,17 @@ def main():
     data = device.get_data('Data_Logger_Output', start_time)
     ## captures first record number to reference all other captures from
     init_rec_nm = data[0]['RecNbr']
-    # if rec_nm - count_rec_num != init_rec_nm, we are behind
-    count_rec_nm = 0
+    ## RecNbr = 391
+    count_index_nm = 0
     ## while device is connected
     while device.connected == True:
-        index_pos = init_rec_nm - count_rec_nm
-        ## if our captures are current and we have not fallen behind
-        if index_pos == init_rec_nm:
+        ts_1 = get_seconds_CR1000()
+        capt_data = await data_capture(device, count_index_nm)
+        conv_data = asyncio.create_task(convert_data(capt_data))
+        await conv_data
+
+
+
 
 
 ## Upon powering on the Raspberry Pi and the CR1000X
