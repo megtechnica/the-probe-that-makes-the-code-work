@@ -6,24 +6,36 @@ import os
 import convert_logger_data
 
 def main():
-    start_time = datetime.now()
     ## capture device logic here
-    device = CR1000()
+    device = CR1000.from_url()
+    data = device.get_data('Data_Logger_Output', start_time)
+    init_rec_nm = data['RecNm']
     while device.connected == True:
+        
         
 
 
+def get_seconds():
+    time_stamp = datetime.now()
+    return time_stamp.second
+
+def get_seconds_CR1000():
+    time_stamp = device.gettime()
+    return time_stamp.second
 
 
-def ten_second_interval(ts_1, ts_2):
+def ten_second_interval(ts_1):
+    ts_2 = datetime.now()
     time_delta = ts_2.second - ts_1.second
     if time_delta >= abs(10):
         return True
     else:
         return False
 
-
-
+## Upon powering on the Raspberry Pi and the CR1000X
+## this will run.
+start_time = datetime.now()
+wait_for = 10 - start_time.second
 try:
     main()
 
