@@ -19,3 +19,4 @@ async def convert_data(data):
             data[i] = convert_relative_humidity(data)
         else:
             continue
+    return data
