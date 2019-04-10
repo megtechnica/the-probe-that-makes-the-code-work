@@ -33,9 +33,12 @@ def ten_second_interval(ts_1):
         return False
 
 ## Upon powering on the Raspberry Pi and the CR1000X
-## this will run.
+## this will run.  The initial data capture does not 
+## occur immediately, therefore we need to wait 10 sec
+## for the first capture.  
 start_time = datetime.now()
 wait_for = 10 - start_time.second
+sleep(wait_for)
 try:
     main()
 
