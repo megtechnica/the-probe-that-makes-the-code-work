@@ -1,28 +1,8 @@
-from pylink import *
-from pycampbellcr1000 import *
-from asyncio import *
-from datetime import *
-import os
-import convert_logger_data
+from pylink, pycampbellcr1000, asyncio, datetime import *
+import os, convert_logger_data
 
-def main():
-    ## capture device logic here
-    device = CR1000.from_url()
-    data = device.get_data('Data_Logger_Output', start_time)
-    init_rec_nm = data['RecNm']
-    count_rec_nm = 0
-    ## while device is connected
-    while device.connected == True:
-        ## If this is the first iteration, we don't need another capture
-        if count_rec_nm == 0:
-            data = data[-1]
-            conv_data = convert_data(data)  ## need to declare conv_logger_data as asynchronous 
-            sending_function(conv_data)
-            count_rec_nm += 1
-        else:
-            
-        
-
+## captures starting timestamp
+start_time = datetime.now()
 
 def get_seconds():
     time_stamp = datetime.now()
@@ -32,7 +12,6 @@ def get_seconds_CR1000():
     time_stamp = device.gettime()
     return time_stamp.second
 
-
 def ten_second_interval(ts_1):
     ts_2 = datetime.now()
     time_delta = ts_2.second - ts_1.second
@@ -41,11 +20,31 @@ def ten_second_interval(ts_1):
     else:
         return False
 
+async def data_capture(device):
+    data = device.get_data('Data_Logger_Output', start_time)
+    rec_nm = data[-1]['RecNm']
+
+def main():
+    ## capture device logic here
+    directory = listdir('/dev')
+    if 'ttyACM0' in directory:
+        device = CR1000.from_url('serial:/dev/ttyACM0:115200')
+    else:
+        device = CR1000.from_url('serial:/dev/ttyACM1:115200')
+    data = device.get_data('Data_Logger_Output', start_time)
+    ## captures first record number to reference all other captures from
+    init_rec_nm = data[0]['RecNbr']
+    # if init_rec_nm + count_rec_num < captured rec_nm, we are behind
+    count_rec_nm = 0
+    ## while device is connected
+    while device.connected == True:
+
+
 ## Upon powering on the Raspberry Pi and the CR1000X
 ## this will run.  The initial data capture does not 
 ## occur immediately, therefore we need to wait 10 sec
 ## for the first capture.  
-start_time = datetime.now()
+
 wait_for = 10 - start_time.second
 sleep(wait_for)
 try:
