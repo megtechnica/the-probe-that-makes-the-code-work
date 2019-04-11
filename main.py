@@ -1,9 +1,33 @@
-from pylink, pycampbellcr1000, asyncio, datetime import *
-import os, convert_logger_data
+from pylink import *
+from pycampbellcr1000 import *
+from asyncio import *
+from datetime import *
+import os
 
 ## I like your haircut
 
 ## declaring functions, not the entry point
+def convert_pressure(mV):
+    return (((mV/5) + 0.095)/0.009)
+
+def convert_relative_humidity(mV):
+    return ((mV - 0.826)/0.0315)
+
+def convert_farenheit(mV):
+    return (((mV/0.01)*1.8)+32)
+
+async def convert_data(data):
+    for i in data:
+        if "P" in i:
+            data[i] = convert_pressure(data)
+        elif "Therm" in i:
+            data[i] = convert_farenheit(data)
+        elif "Humid" in i:
+            data[i] = convert_relative_humidity(data)
+        else:
+            continue
+    return data
+
 def get_seconds():
     time_stamp = datetime.now()
     return time_stamp.second
@@ -24,7 +48,7 @@ async def data_capture(device, count_index_nm):
     data = device.get_data('Data_Logger_Output', start_time)
     return capt_data = data[count_index_nm]
 
-def main():
+async def main():
     ## captures starting timestamp
     start_time = datetime.now()
     ## capture device logic here
@@ -49,8 +73,9 @@ def main():
     ## while device is connected
     while device.connected == True:
         ts_1 = get_seconds_CR1000()
-        capt_data = await data_capture(device, count_index_nm)
-        conv_data = asyncio.create_task(convert_data(capt_data))
+        capt_data = loop.create_task(data_capture(device, count_index_nm))
+        await asyncio.wait(capt_data)
+        conv_data = loop.create_task(convert_data(capt_data))
         await conv_data
 
 
@@ -63,7 +88,8 @@ def main():
 ## for the first capture.  
 
 try:
-    main()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
 
 except NoDeviceException:
     ## ct is Crash Time
@@ -74,3 +100,6 @@ except NoDeviceException:
     crash_log.write("\nConnection to device failed at {0}".format(ct))
     crash_log.close()
     os.system('sudo shutdown -r now')
+
+finally:
+    loop.close()
