@@ -81,6 +81,7 @@ async def main():
         conv_data = loop.create_task(convert_data(capt_data))
         await asyncio.wait(capt_data)
         await asyncio.sleep(0)
+        count_index_nm +=1
 
 
 
