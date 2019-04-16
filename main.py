@@ -68,15 +68,19 @@ async def main():
     data = device.get_data('Data_Logger_Output', start_time)
     ## captures first record number to reference all other captures from
     init_rec_nm = data[0]['RecNbr']
-    ## RecNbr = 391
     count_index_nm = 0
     ## while device is connected
     while device.connected == True:
+        ## gets time stamp from the start of each loop
         ts_1 = get_seconds_CR1000()
+        ## captures data from logger & awaits it
         capt_data = loop.create_task(data_capture(device, count_index_nm))
         await asyncio.wait(capt_data)
+        await asyncio.sleep(0)
+        ## passes capt_data into convert_data
         conv_data = loop.create_task(convert_data(capt_data))
-        await conv_data
+        await asyncio.wait(capt_data)
+        await asyncio.sleep(0)
 
 
 
