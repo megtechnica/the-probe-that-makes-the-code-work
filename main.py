@@ -38,11 +38,7 @@ def get_seconds_CR1000():
 
 def ten_second_interval(ts_1):
     ts_2 = datetime.now()
-    time_delta = ts_2.second - ts_1.second
-    if time_delta >= abs(10):
-        return True
-    else:
-        return False
+    return ts_2.second - ts_1
 
 async def data_capture(device, count_index_nm):
     data = device.get_data('Data_Logger_Output', start_time)
@@ -80,8 +76,10 @@ async def main():
         ## passes capt_data into convert_data
         conv_data = loop.create_task(convert_data(capt_data))
         await asyncio.wait(capt_data)
-        await asyncio.sleep(0)
         count_index_nm +=1
+        time_delta = ten_second_interval(ts_1)
+        await asyncio.sleep(time_delta)
+        
 
 
 
@@ -91,6 +89,9 @@ async def main():
 ## this will run.  The initial data capture does not 
 ## occur immediately, therefore we need to wait 10 sec
 ## for the first capture.  
+
+loop = asyncio.get_event_loop()
+task = loop.create_task(main)
 
 try:
     loop = asyncio.get_event_loop()
