@@ -19,11 +19,11 @@ def convert_farenheit(mV):
 async def convert_data(data):
     for i in data:
         if "P" in i:
-            data[i] = convert_pressure(data)
+            data[i] = convert_pressure(data[i])
         elif "Therm" in i:
-            data[i] = convert_farenheit(data)
+            data[i] = convert_farenheit(data[i])
         elif "Humid" in i:
-            data[i] = convert_relative_humidity(data)
+            data[i] = convert_relative_humidity(data[i])
         else:
             continue
     return data
