@@ -11,11 +11,14 @@ import os
 def convert_data(data):
     for i in data:
         if "P" in i:
-            data[i] = lambda data[i]: (((data[i]/5) + 0.095)/0.009)
+            convert_pressure = lambda mV: (((mV/5) + 0.095)/0.009)
+            data[i] = convert_pressure(data[i])
         elif "Therm" in i:
-            data[i] = lambda data[i]: ((data[i] - 0.826)/ 0.0315)
+            convert_temp = lambda mV: ((mV - 0.826)/ 0.0315)
+            data[i] = convert_temp(data[i])
         elif "Humid" in i:
-            data[i] = lambda data[i] : (((data[i]/0.01)*1.8)+32)
+            convert_humid = lambda mV : (((mV/0.01)*1.8)+32)
+            data[i] convert_humid(data[i])
         else:
             continue
     return data
