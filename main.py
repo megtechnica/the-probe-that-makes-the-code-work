@@ -7,23 +7,15 @@ import os
 ## I like your haircut
 
 ## declaring functions, not the entry point
-def convert_pressure(mV):
-    return (((mV/5) + 0.095)/0.009)
 
-def convert_relative_humidity(mV):
-    return ((mV - 0.826)/0.0315)
-
-def convert_farenheit(mV):
-    return (((mV/0.01)*1.8)+32)
-
-async def convert_data(data):
+def convert_data(data):
     for i in data:
         if "P" in i:
-            data[i] = convert_pressure(data[i])
+            data[i] = lambda data[i]: (((data[i]/5) + 0.095)/0.009)
         elif "Therm" in i:
-            data[i] = convert_farenheit(data[i])
+            data[i] = lambda data[i]: ((data[i] - 0.826)/ 0.0315)
         elif "Humid" in i:
-            data[i] = convert_relative_humidity(data[i])
+            data[i] = lambda data[i] : (((data[i]/0.01)*1.8)+32)
         else:
             continue
     return data
@@ -40,7 +32,7 @@ def ten_second_interval(ts_1):
     ts_2 = datetime.now()
     return ts_2.second - ts_1
 
-async def data_capture(device, count_index_nm):
+def data_capture(device, count_index_nm):
     data = device.get_data('Data_Logger_Output', start_time)
     return capt_data = data[count_index_nm]
 
@@ -70,20 +62,12 @@ async def main():
         ## gets time stamp from the start of each loop
         ts_1 = get_seconds_CR1000()
         ## captures data from logger & awaits it
-        capt_data = loop.create_task(data_capture(device, count_index_nm))
-        await asyncio.wait(capt_data)
-        await asyncio.sleep(0)
+        capt_data = data_capture(device, count_index_nm)
         ## passes capt_data into convert_data
-        conv_data = loop.create_task(convert_data(capt_data))
-        await asyncio.wait(capt_data)
+        conv_data = convert_data(capt_data)
         count_index_nm +=1
         time_delta = ten_second_interval(ts_1)
         await asyncio.sleep(time_delta)
-        
-
-
-
-
 
 ## Upon powering on the Raspberry Pi and the CR1000X
 ## this will run.  The initial data capture does not 
