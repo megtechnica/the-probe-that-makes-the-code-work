@@ -18,7 +18,7 @@ def convert_data(data):
             data[i] = convert_temp(data[i])
         elif "Humid" in i:
             convert_humid = lambda mV : (((mV/0.01)*1.8)+32)
-            data[i] convert_humid(data[i])
+            data[i] = convert_humid(data[i])
         else:
             continue
     return data
